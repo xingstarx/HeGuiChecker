@@ -1,5 +1,8 @@
 package me.simple.checker.hookers;
 
+import android.provider.Settings;
+import android.text.TextUtils;
+
 import me.simple.checker.CheckerHelper;
 import top.canyie.pine.Pine;
 import top.canyie.pine.callback.MethodHook;
@@ -9,6 +12,7 @@ public class PackageManagerHooker {
 
     public static void hook() throws NoSuchMethodException {
         hookGetInstalledPackages();
+        hookGetApplicationInfo();
         hookGetInstalledApplications();
         hookGetInstallerPackageName();
         hookGetPackageInfo();
@@ -28,6 +32,27 @@ public class PackageManagerHooker {
             e.printStackTrace();
         }
     }
+
+    private static void hookGetApplicationInfo() throws NoSuchMethodException {
+        try {
+            Class clazz = Class.forName("android.app.ApplicationPackageManager");
+            Pine.hook(clazz.getMethod("getApplicationInfo", String.class, int.class), new MethodHook() {
+                @Override
+                public void beforeCall(Pine.CallFrame callFrame) throws Throwable {
+                    super.beforeCall(callFrame);
+//                    CheckerHelper.showWarn("getApplicationInfo");
+                    try {
+                        CheckerHelper.showWarn("getApplicationInfo 参数: " + callFrame.args[0]);
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                }
+            });
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private static void hookGetInstalledApplications() throws NoSuchMethodException {
         try {
@@ -66,7 +91,12 @@ public class PackageManagerHooker {
                 @Override
                 public void beforeCall(Pine.CallFrame callFrame) throws Throwable {
                     super.beforeCall(callFrame);
-                    CheckerHelper.showWarn("getPackageInfo");
+//                    CheckerHelper.showWarn("getPackageInfo");
+                    try {
+                        CheckerHelper.showWarn("getPackageInfo 参数: " + callFrame.args[0]);
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
                 }
             });
         } catch (ClassNotFoundException e) {
